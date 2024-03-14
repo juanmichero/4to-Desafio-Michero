@@ -1,0 +1,46 @@
+<h1>Products in real time</h1>
+<div class="form">
+    <form action="/realtimeproducts" id="form" method="post">
+        <legend>Add new product</legend>
+
+        <div>
+            <label>Title: </label>
+            <input type="text" id="fieldTitle" name="title">
+        </div>
+        <div>
+            <label>Description: </label>
+            <input type="text" id="fieldDescription" name="description">
+        </div>
+        <div>
+            <label>Price: </label>
+            <input type="number" id="fieldPrice" name="price">
+        </div>
+        <div>
+            <label>Thumbnail: </label>
+            <input type="text" id="fieldThumbnail" name="thumbnail">
+        </div>
+        <div>
+            <label>Code: </label>
+            <input type="text" id="fieldCode" name="code">
+        </div>
+        <div>
+            <label>Stock: </label>
+            <input type="number" id="fieldStock" name="stock">
+        </div>
+        <input type="submit" id="addProduct" value="Add">
+    </form>
+</div>
+
+<div class="container" id="productFeed">
+    {{#each products}}
+    <div class="product">
+        <h3>{{title}}</h3>
+        <div class="product__info">
+            <p>{{description}}</p>
+            <p>${{price}}</p>
+            <p>Stock: {{stock}}</p>
+            <p>Code: {{code}}</p>
+        </div>
+    </div>
+    {{/each}}
+</div>
