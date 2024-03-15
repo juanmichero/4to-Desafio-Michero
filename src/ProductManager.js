@@ -1,56 +1,56 @@
-const fs = require('fs').promises;
+const fs = require('fs').promises
 
 class ProductManager {
 
-    #products;
-    #lastProductId;
-    path;
+    #products
+    #lastProductId
+    path
 
     constructor(path) {
-        this.#products = [];
-        this.path = path;
-        this.#lastProductId = 1;
-        this.#readFile();
+        this.#products = []
+        this.path = path
+        this.#lastProductId = 1
+        this.#readFile()
     }
 
     async #readFile() {
         try {
-            const fileData = await fs.readFile(this.path, 'utf-8');
-            this.#products = JSON.parse(fileData);
-            this.#updateLastProductId();
+            const fileData = await fs.readFile(this.path, 'utf-8')
+            this.#products = JSON.parse(fileData)
+            this.#updateLastProductId()
         } catch (error) {
-            await this.#saveFile();
+            await this.#saveFile()
         }
     }
 
     #updateLastProductId() {
-        const lastProduct = this.#products[this.#products.length - 1];
+        const lastProduct = this.#products[this.#products.length - 1]
         if (lastProduct) {
-            this.#lastProductId = lastProduct.id + 1;
+            this.#lastProductId = lastProduct.id + 1
         }
     }
 
     async #saveFile() {
-        await fs.writeFile(this.path, JSON.stringify(this.#products, null, 2), 'utf-8');
+        await fs.writeFile(this.path, JSON.stringify(this.#products, null, 2), 'utf-8')
     }
 
     #getNewId() {
-        return this.#lastProductId++;
+        return this.#lastProductId++
     }
 
     async addProduct(title, description, price, thumbnail, code, status, stock) {
         if (!title || !description || !code) {
-            throw new Error('Debe completar todos los campos');
+            throw new Error("One or more fields have invalid values.")
         }
 
         if (typeof status === 'undefined' || status === true || status === 'true') {
-            status = true;
+            status = true
         } else {
-            status = false;
+            status = false
         }
 
         if (!thumbnail) {
-            thumbnail = 'no image';
+            thumbnail = 'no image'
         } else {
             thumbnail;
         }
@@ -59,74 +59,74 @@ class ProductManager {
         const numericStock = parseInt(stock)
 
         if (numericStock < 0 && numericPrice <= 0) {
-            throw new Error('Asegúrese de que stock y price sean valores de tipo "number" superiores o iguales a 0');
+            throw new Error("Make sure 'stock' and 'price' are valid numbers.")
         }
 
-        const existingProduct = await this.getProducts();
+        const existingProduct = await this.getProducts()
         const findProductCode = existingProduct.find(field => field.code === code)
 
         if (!findProductCode) {
-            const product = { id: this.#getNewId(), title, description, price: numericPrice, thumbnail, code, status, stock: numericStock };
-            this.#products.push(product);
-            await this.#saveFile();
-            console.log('Agregado Correctamente');
+            const product = { id: this.#getNewId(), title, description, price: numericPrice, thumbnail, code, status, stock: numericStock }
+            this.#products.push(product)
+            await this.#saveFile()
+            console.log('Product added.')
         } else {
-            throw new Error('El código de producto ya existe');
+            throw new Error("'Code' field already exists for one or more products.")
         }
     }
 
     async getProducts() {
         try {
-            const fileContents = await fs.readFile(this.path, 'utf-8');
-            const existingProduct = JSON.parse(fileContents);
-            return existingProduct;
+            const fileContents = await fs.readFile(this.path, 'utf-8')
+            const existingProduct = JSON.parse(fileContents)
+            return existingProduct
         } catch (err) {
-            return [];
+            return []
         }
     }
 
     async getProductById(id) {
-        const existingProducts = await this.getProducts();
-        const filterProductById = existingProducts.find(el => el.id === id);
+        const existingProducts = await this.getProducts()
+        const filterProductById = existingProducts.find(el => el.id === id)
         if (filterProductById) {
-            return filterProductById;
+            return filterProductById
         } else {
-            throw new Error('Not Found: El ID solicitado no existe.');
+            throw new Error('ID not found.')
         }
     }
 
     async updateProduct(id, updatedProduct) {
-        const indexToUpdate = this.#products.findIndex(el => el.id === id);
+        const indexToUpdate = this.#products.findIndex(el => el.id === id)
 
         if (indexToUpdate !== -1) {
-            const { id: updatedId, stock, price } = updatedProduct;
+            const { id: updatedId, stock, price } = updatedProduct
 
             if (stock <= 0 || price <= 0) {
-                throw new Error('Asegúrese de que stock y price sean valores de tipo "number" superiores a 0');
+                throw new Error("Make sure 'stock' and 'price' are valid numbers.")
             }
 
             if (updatedId && updatedId !== id) {
-                throw new Error('No se permite modificar el ID del producto');
+                throw new Error('Product ID cannot be modified.')
             }
 
-            this.#products[indexToUpdate] = { ...this.#products[indexToUpdate], ...updatedProduct, id };
+            this.#products[indexToUpdate] = { ...this.#products[indexToUpdate], ...updatedProduct, id }
             await this.#saveFile();
-            console.log('Producto actualizado correctamente');
+            console.log('Product updated.')
         } else {
-            throw new Error('Not found: El ID solicitado no existe');
+            throw new Error('ID not found.')
         }
     }
 
     async deleteProduct(id) {
-        const indexToDelete = this.#products.findIndex(el => el.id === id);
+        const indexToDelete = this.#products.findIndex(el => el.id === id)
         if (indexToDelete !== -1) {
-            this.#products.splice(indexToDelete, 1);
-            await this.#saveFile();
-            console.log('Producto eliminado correctamente');
+            this.#products.splice(indexToDelete, 1)
+            await this.#saveFile()
+            console.log('Product deleted.')
         } else {
-            throw new Error('Not found: El ID solicitado no existe');
+            throw new Error('ID not found.')
         }
     }
 }
 
-module.exports = ProductManager;
+module.exports = ProductManager

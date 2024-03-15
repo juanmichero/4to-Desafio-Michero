@@ -34,14 +34,15 @@ router.post('/', async (req, res) => {
 
         const newProduct = { title, description, price, thumbnail, code, stock }
 
-        await manager.addProduct(title, description, price, thumbnail, code, stock)
-
         if (newProduct.title && newProduct.description && newProduct.price && newProduct.thumbnail && newProduct.code && newProduct.stock) {
             req.app.get('ws').emit('newProduct', newProduct)
         }
 
+        await manager.addProduct(title, description, price, thumbnail, code, stock)
+
         res.status(301).redirect('/realtimeproducts')
-    } catch {
+    } catch (err) {
+        console.log(err)
         res.status(500).send('Error adding product')
     }
 });
